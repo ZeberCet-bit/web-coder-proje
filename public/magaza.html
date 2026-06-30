@@ -3,119 +3,259 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Véstis - Dijital Mağaza</title>
+    <title>Véstis | Premium Dark Store</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; }
-        h1 { text-align: center; color: #2c3e50; }
-        .container { max-width: 1000px; margin: 0 auto; }
-        
-        /* Ürün Ekleme Paneli (Sizin İçin) */
-        .admin-panel { background: #fff; padding: 20px; border-radius: 8px; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 5px solid #e74c3c; }
-        .admin-panel input, .admin-panel textarea { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        .btn-add { background-color: #e74c3c; color: white; border: none; padding: 12px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; }
-        .btn-add:hover { background-color: #c0392b; }
+        /* --- MODERN KOYU TEMA RENK PALETİ --- */
+        :root {
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --primary-accent: #e74c3c;
+            --primary-hover: #c0392b;
+            --text-main: #f5f5f5;
+            --text-muted: #a0a0a0;
+            --border-color: #333;
+        }
 
-        /* Ürünlerin Sergilendiği Raflar */
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
-        .product-card { background: white; border-radius: 8px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; transition: transform 0.3s; }
-        .product-card:hover { transform: translateY(-5px); }
-        .product-card img { max-width: 100%; height: 200px; object-fit: cover; border-radius: 4px; margin-bottom: 10px; }
-        .product-title { font-size: 1.2em; color: #34495e; margin: 10px 0; font-weight: bold;}
-        .product-desc { font-size: 0.9em; color: #7f8c8d; height: 40px; overflow: hidden; }
-        .product-price { color: #27ae60; font-size: 1.4em; font-weight: bold; margin: 15px 0; }
-        .btn-buy { background-color: #3498db; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold; transition: 0.3s;}
-        .btn-buy:hover { background-color: #2980b9; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 0; }
+        
+        /* Üst Menü (Navbar) */
+        header { background-color: var(--surface-color); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.5); position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 1.8em; font-weight: bold; color: var(--text-main); letter-spacing: 2px; }
+        .logo span { color: var(--primary-accent); }
+        .nav-controls { display: flex; gap: 15px; align-items: center; }
+        
+        /* Butonlar */
+        button { cursor: pointer; padding: 10px 20px; border-radius: 6px; font-weight: bold; transition: all 0.3s ease; border: none; }
+        .btn-outline { background: transparent; border: 1px solid var(--text-main); color: var(--text-main); }
+        .btn-outline:hover { background: var(--text-main); color: var(--bg-color); }
+        .btn-accent { background: var(--primary-accent); color: white; }
+        .btn-accent:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(231, 76, 60, 0.4); }
+        
+        /* Ana İçerik ve Gizli Admin Paneli */
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        #adminPanel { background: #2a1616; padding: 25px; border-radius: 10px; margin-bottom: 30px; border-left: 5px solid var(--primary-accent); display: none; /* Başlangıçta gizli */ }
+        .admin-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        input, textarea { width: 100%; padding: 12px; background: #2d2d2d; border: 1px solid var(--border-color); color: white; border-radius: 6px; box-sizing: border-box; }
+        input:focus, textarea:focus { outline: none; border-color: var(--primary-accent); }
+
+        /* Ürün Vitrini */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+        .product-card { background: var(--surface-color); border-radius: 12px; padding: 20px; text-align: center; transition: 0.3s; border: 1px solid var(--border-color); }
+        .product-card:hover { transform: translateY(-8px); box-shadow: 0 10px 20px rgba(0,0,0,0.6); border-color: var(--text-muted); }
+        .product-card img { width: 100%; height: 220px; object-fit: cover; border-radius: 8px; margin-bottom: 15px; }
+        .product-title { font-size: 1.3em; margin-bottom: 10px; }
+        .product-price { color: var(--primary-accent); font-size: 1.5em; font-weight: bold; margin-bottom: 15px; }
+
+        /* Açılır Pencereler (Modals) */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: var(--surface-color); padding: 40px; border-radius: 12px; width: 350px; text-align: center; border: 1px solid var(--border-color); position: relative; }
+        .close-btn { position: absolute; right: 15px; top: 15px; font-size: 24px; cursor: pointer; color: var(--text-muted); transition: 0.3s; }
+        .close-btn:hover { color: white; }
+        .modal h2 { margin-top: 0; margin-bottom: 20px; }
+        .modal button { width: 100%; margin-top: 15px; }
+
+        #userInfo { display: none; color: var(--text-muted); font-weight: bold; margin-right: 15px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Véstis Profesyonel Vitrin</h1>
 
-        <!-- Kurucu Yönetici İçin Ürün Ekleme Paneli -->
-        <div class="admin-panel">
-            <h3>🛠️ Yeni Ürün Ekle (Yönetici Paneli)</h3>
-            <input type="text" id="title" placeholder="Ürün Adı (Örn: Siyah Tasarım Tişört)">
-            <input type="number" id="price" placeholder="Fiyat (TL) (Örn: 450)">
-            <textarea id="description" placeholder="Ürün Açıklaması"></textarea>
-            <input type="text" id="imageUrl" placeholder="Görsel Linki (Boş bırakırsanız varsayılan görsel atanır)">
-            <button class="btn-add" onclick="urunEkle()">Ürünü Vitrine Ekle</button>
+    <!-- ÜST MENÜ -->
+    <header>
+        <div class="logo">VÉS<span>TİS</span></div>
+        <div class="nav-controls">
+            <span id="userInfo"></span>
+            <button id="logoutBtn" class="btn-outline" style="display:none;" onclick="cikisYap()">Çıkış Yap</button>
+            <button id="loginBtn" class="btn-outline" onclick="openModal('loginModal')">Giriş Yap</button>
+            <button id="registerBtn" class="btn-accent" onclick="openModal('registerModal')">Kayıt Ol</button>
+            <button class="btn-accent" onclick="sepetiGoster()">🛒 Sepet (<span id="cartCount">0</span>)</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- KURUCU YÖNETİCİ PANELİ (Sadece giriş yapıldığında görünür) -->
+        <div id="adminPanel">
+            <h3 style="margin-top:0; color: var(--primary-accent);">🛠️ Yönetici İstasyonu (Sadece KurucuAdmin Görebilir)</h3>
+            <div class="admin-inputs">
+                <input type="text" id="title" placeholder="Ürün Adı">
+                <input type="number" id="price" placeholder="Fiyat (TL)">
+            </div>
+            <textarea id="description" placeholder="Ürün Açıklaması" rows="2"></textarea>
+            <input type="text" id="imageUrl" placeholder="Görsel Linki (URL)" style="margin-top: 15px; margin-bottom: 15px;">
+            <button class="btn-accent" style="width: 100%;" onclick="urunEkle()">Ürünü Vitrine Fırla</button>
         </div>
 
-        <!-- Müşteriler İçin Ürün Sergisi -->
+        <!-- VİTRİN -->
+        <h2 style="border-bottom: 2px solid var(--border-color); padding-bottom: 10px; margin-bottom: 30px;">Tüm Ürünler</h2>
         <div class="product-grid" id="productGrid">
-            <!-- Ürünler buraya veri tabanından otomatik gelecek -->
+            <!-- Ürünler veritabanından buraya akacak -->
+        </div>
+    </div>
+
+    <!-- GİRİŞ YAP PENCERESİ -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('loginModal')">&times;</span>
+            <h2>Véstis'e Giriş</h2>
+            <input type="text" id="loginUser" placeholder="Kullanıcı Adı">
+            <input type="password" id="loginPass" placeholder="Şifre">
+            <button class="btn-accent" onclick="girisYap()">Giriş Yap</button>
+        </div>
+    </div>
+
+    <!-- KAYIT OL PENCERESİ -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('registerModal')">&times;</span>
+            <h2>Yeni Hesap Oluştur</h2>
+            <input type="text" id="regUser" placeholder="Kullanıcı Adı Belirle">
+            <input type="password" id="regPass" placeholder="Şifre Belirle">
+            <button class="btn-accent" onclick="kayitOl()">Kayıt Ol</button>
         </div>
     </div>
 
     <script>
-        // Sayfa açılır açılmaz bulut hafızadaki (MongoDB) ürünleri getir
-        document.addEventListener('DOMContentLoaded', urunleriGetir);
+        let sepet = [];
 
+        // Sayfa Yüklendiğinde Çalışacaklar
+        document.addEventListener('DOMContentLoaded', () => {
+            oturumKontrolu();
+            urunleriGetir();
+        });
+
+        // --- ARAYÜZ (MODAL) KONTROLLERİ ---
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        // --- GİRİŞ / KAYIT / OTURUM İŞLEMLERİ ---
+        async function kayitOl() {
+            const username = document.getElementById('regUser').value;
+            const password = document.getElementById('regPass').value;
+            
+            const response = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await response.json();
+            alert(data.message || data.error);
+            if(!data.error) closeModal('registerModal');
+        }
+
+        async function girisYap() {
+            const username = document.getElementById('loginUser').value;
+            const password = document.getElementById('loginPass').value;
+
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await response.json();
+            
+            if(data.error) {
+                alert(data.error);
+            } else {
+                // Giriş başarılı, kullanıcıyı tarayıcı hafızasına kaydet
+                localStorage.setItem('aktifKullanici', data.username);
+                alert(data.message);
+                closeModal('loginModal');
+                oturumKontrolu(); // Arayüzü güncelle
+            }
+        }
+
+        function cikisYap() {
+            localStorage.removeItem('aktifKullanici');
+            oturumKontrolu();
+            alert("Başarıyla çıkış yapıldı.");
+        }
+
+        function oturumKontrolu() {
+            const aktifKullanici = localStorage.getItem('aktifKullanici');
+            const loginBtn = document.getElementById('loginBtn');
+            const registerBtn = document.getElementById('registerBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const userInfo = document.getElementById('userInfo');
+            const adminPanel = document.getElementById('adminPanel');
+
+            if (aktifKullanici) {
+                loginBtn.style.display = 'none';
+                registerBtn.style.display = 'none';
+                logoutBtn.style.display = 'inline-block';
+                userInfo.style.display = 'inline-block';
+                userInfo.innerText = "Hoş Geldin, " + aktifKullanici;
+
+                // Gizli Güvenlik: Sadece KurucuAdmin paneli görebilir
+                if (aktifKullanici === 'KurucuAdmin') {
+                    adminPanel.style.display = 'block';
+                } else {
+                    adminPanel.style.display = 'none';
+                }
+            } else {
+                loginBtn.style.display = 'inline-block';
+                registerBtn.style.display = 'inline-block';
+                logoutBtn.style.display = 'none';
+                userInfo.style.display = 'none';
+                adminPanel.style.display = 'none';
+            }
+        }
+
+        // --- ÜRÜN VE SEPET İŞLEMLERİ ---
         async function urunleriGetir() {
             try {
                 const response = await fetch('/api/products');
                 const products = await response.json();
-                
                 const grid = document.getElementById('productGrid');
                 grid.innerHTML = ''; 
-                
+
                 if(products.length === 0) {
-                    grid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #7f8c8d;">Henüz vitrinde ürün bulunmuyor. Yukarıdaki panelden ilk ürününüzü ekleyin!</p>';
+                    grid.innerHTML = '<p style="color: var(--text-muted); grid-column: 1 / -1; text-align:center;">Vitrin şu an boş. Ürünler yakında eklenecek!</p>';
                     return;
                 }
 
                 products.forEach(product => {
-                    const card = document.createElement('div');
-                    card.className = 'product-card';
-                    card.innerHTML = `
-                        <img src="${product.imageUrl}" alt="${product.title}">
-                        <div class="product-title">${product.title}</div>
-                        <div class="product-desc">${product.description}</div>
-                        <div class="product-price">${product.price} TL</div>
-                        <button class="btn-buy" onclick="sepeteEkle('${product.title}')">Sepete Ekle</button>
+                    grid.innerHTML += `
+                        <div class="product-card">
+                            <img src="${product.imageUrl}" alt="${product.title}">
+                            <div class="product-title">${product.title}</div>
+                            <div class="product-price">${product.price} TL</div>
+                            <p style="color: var(--text-muted); font-size: 0.9em; height: 40px; overflow: hidden;">${product.description}</p>
+                            <button class="btn-accent" style="width:100%" onclick="sepeteEkle('${product.title}')">Sepete Ekle</button>
+                        </div>
                     `;
-                    grid.appendChild(card);
                 });
-            } catch (error) {
-                console.error('Hata:', error);
-            }
+            } catch (error) { console.error('Hata:', error); }
         }
 
         async function urunEkle() {
             const title = document.getElementById('title').value;
             const price = document.getElementById('price').value;
-            const description = document.getElementById('description').value || 'Ürün açıklaması bulunmuyor.';
-            const imageUrl = document.getElementById('imageUrl').value || 'https://via.placeholder.com/300x200?text=Vestis+Urun';
+            const description = document.getElementById('description').value || 'Açıklama belirtilmedi.';
+            const imageUrl = document.getElementById('imageUrl').value || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=600&auto=format&fit=crop';
 
-            if(!title || !price) {
-                alert("Lütfen ürün adı ve fiyatını mutlaka girin!");
-                return;
-            }
+            if(!title || !price) return alert("Ürün adı ve fiyatı zorunludur!");
 
-            try {
-                const response = await fetch('/api/add-product', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ title, price, description, imageUrl })
-                });
-                
-                const data = await response.json();
-                alert(data.message); // Başarı mesajını göster
-                
-                // Formu temizle ve ürünleri sayfayı yenilemeden ekrana yansıt
-                document.getElementById('title').value = '';
-                document.getElementById('price').value = '';
-                document.getElementById('description').value = '';
-                document.getElementById('imageUrl').value = '';
-                urunleriGetir();
-
-            } catch (error) {
-                alert("Ürün eklenirken bir hata oluştu.");
-            }
+            await fetch('/api/add-product', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, price, description, imageUrl })
+            });
+            
+            // Paneli temizle ve vitrini güncelle
+            document.getElementById('title').value = '';
+            document.getElementById('price').value = '';
+            document.getElementById('description').value = '';
+            document.getElementById('imageUrl').value = '';
+            urunleriGetir();
         }
 
         function sepeteEkle(urunAdi) {
-            alert("Harika! " + urunAdi + " sepete eklendi. (Sepet özellikleri bir sonraki aşamada inşa edilecek)");
+            sepet.push(urunAdi);
+            document.getElementById('cartCount').innerText = sepet.length;
+        }
+
+        function sepetiGoster() {
+            if(sepet.length === 0) alert("Sepetiniz şu an boş.");
+            else alert("Sepetinizdeki Ürünler:\n- " + sepet.join('\n- '));
         }
     </script>
 </body>
