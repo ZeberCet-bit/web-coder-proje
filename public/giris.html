@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giriş Yap - Web Coder Proje</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #121212; color: #e0e0e0; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .box { background: #1e1e1e; padding: 40px; border-radius: 16px; text-align: center; width: 320px; box-shadow: 0 15px 25px rgba(0,0,0,0.6); border: 1px solid #333; }
+        .box h2 { margin-top: 0; color: #03dac6; font-weight: 600; }
+        
+        .input-group { position: relative; margin: 15px 0; }
+        input { width: 100%; padding: 14px; padding-right: 40px; box-sizing: border-box; background: #2a2a2a; border: 2px solid transparent; color: white; border-radius: 8px; outline: none; transition: 0.3s; font-size: 15px;}
+        input:focus { border-color: #03dac6; background: #333; }
+        
+        .toggle-pass { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; background: none; border: none; font-size: 18px; padding: 0; filter: grayscale(100%); transition: 0.2s;}
+        .toggle-pass:hover { filter: grayscale(0%); transform: translateY(-50%) scale(1.1); }
+        
+        button[type="submit"] { width: 100%; padding: 14px; background: #03dac6; color: #121212; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        button[type="submit"]:hover { background: #00b3a6; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(3, 218, 198, 0.3); }
+        button[type="submit"]:disabled { background: #555; color: #888; cursor: not-allowed; transform: none; box-shadow: none; }
+        
+        .link-text { margin-top: 20px; font-size: 13px; color: #a0a0a0; }
+        .link-text a { color: #03dac6; text-decoration: none; font-weight: bold; transition: 0.3s; }
+        .link-text a:hover { text-decoration: underline; color: #bb86fc; }
+        #msg { margin-top: 15px; font-size: 14px; font-weight: bold; min-height: 20px; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>Arşive Giriş</h2>
+        <form id="loginForm" onsubmit="event.preventDefault(); login();">
+            <div class="input-group">
+                <input type="text" id="user" placeholder="Kullanıcı Adı" autocomplete="username" required>
+            </div>
+            <div class="input-group">
+                <input type="password" id="pass" placeholder="Şifre" autocomplete="current-password" required>
+                <button type="button" class="toggle-pass" onclick="togglePassword('pass', this)" title="Şifreyi Göster/Gizle">👁️</button>
+            </div>
+            <button type="submit" id="submitBtn">Giriş Yap</button>
+        </form>
+        
+        <div class="link-text">
+            Arşiv anahtarına sahip değil misin?<br><br> <a href="/kayit.html">Kayıt Ol</a>
+        </div>
+        <p id="msg"></p>
+    </div>
+
+    <script>
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                btn.innerText = "🙈";
+            } else {
+                input.type = "password";
+                btn.innerText = "👁️";
+            }
+        }
+
+        async function login() {
+            const user = document.getElementById('user').value;
+            const pass = document.getElementById('pass').value;
+            const msgBox = document.getElementById('msg');
+            const btn = document.getElementById('submitBtn');
+            
+            // İşlem sürerken butonu kilitle
+            btn.disabled = true;
+            btn.innerText = "Arşive Bağlanılıyor...";
+            msgBox.innerText = "";
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: user, password: pass })
+                });
+                const data = await response.json();
+                
+                msgBox.style.color = response.ok ? '#03dac6' : '#ea4335';
+                msgBox.innerText = data.message || data.error;
+                
+                if(response.ok) {
+                    localStorage.setItem('loggedInUser', data.username);
+                    setTimeout(() => window.location.href = '/', 1000);
+                } else {
+                    btn.disabled = false;
+                    btn.innerText = "Giriş Yap";
+                }
+            } catch (error) {
+                msgBox.style.color = '#ea4335';
+                msgBox.innerText = "Sunucuya ulaşılamıyor.";
+                btn.disabled = false;
+                btn.innerText = "Giriş Yap";
+            }
+        }
+    </script>
+</body>
+</html>
